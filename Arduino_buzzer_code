@@ -1,0 +1,42 @@
+const int buttons[] = {18, 19, 21};
+const int resetPin = 25;            
+int lastState[3];
+bool locked = false;
+
+void setup() {
+  Serial.begin(115200);
+  delay(2000);
+
+  for (int i = 0; i < 3; i++) {
+    pinMode(buttons[i], INPUT_PULLUP);
+    lastState[i] = HIGH;
+  }
+
+  pinMode(resetPin, INPUT_PULLUP); 
+
+  Serial.println("Quiz Buzzer - 3 Players Ready");
+  Serial.println("Waiting for first player...");
+}
+
+void loop() {
+  if (digitalRead(resetPin) == LOW) {
+    locked = false;
+    Serial.println("System reset ✅ Waiting for next question...");
+    delay(300); // debounce
+  }
+
+  if (!locked) {
+    for (int i = 0; i < 3; i++) {
+      int currentState = digitalRead(buttons[i]);
+
+      if (lastState[i] == HIGH && currentState == LOW) {
+        Serial.print("Player ");
+        Serial.print(i + 1);
+        Serial.println(" buzzed first! ✅");
+        locked = true;
+        break;
+      }
+      lastState[i] = currentState;
+    }
+  }
+}
