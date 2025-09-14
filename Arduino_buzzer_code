@@ -1,32 +1,36 @@
-const int buttons[] = {18, 19, 21};
-const int resetPin = 25;            
-int lastState[3];
+const int buttons[] = {18, 19, 21, 22, 23, 26};  // 6 team buttons
+const int resetPin = 25;                         // reset button
+
+int lastState[6];
 bool locked = false;
 
 void setup() {
   Serial.begin(115200);
   delay(2000);
 
-  for (int i = 0; i < 3; i++) {
+  // Initialize player buttons
+  for (int i = 0; i < 6; i++) {
     pinMode(buttons[i], INPUT_PULLUP);
     lastState[i] = HIGH;
   }
 
   pinMode(resetPin, INPUT_PULLUP); 
 
-  Serial.println("Quiz Buzzer - 3 Players Ready");
+  Serial.println("Quiz Buzzer - 6 Players Ready");
   Serial.println("Waiting for first player...");
 }
 
 void loop() {
+  // Reset system when reset button is pressed
   if (digitalRead(resetPin) == LOW) {
     locked = false;
     Serial.println("System reset ✅ Waiting for next question...");
     delay(300); // debounce
   }
 
+  // Check buttons only if not locked
   if (!locked) {
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 6; i++) {
       int currentState = digitalRead(buttons[i]);
 
       if (lastState[i] == HIGH && currentState == LOW) {
